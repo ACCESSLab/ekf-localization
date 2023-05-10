@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="max_uncertainty1" default="500.0" />
+  <arg name="max_uncertainty2" default="2.0" />
+  
+  <node pkg="sensor_weight" type="sensor_weight" name="sensor_weight" output="screen">
+    <param name="max_uncertainty1" value="$(arg max_uncertainty1)"/>
+    <param name="max_uncertainty2" value="$(arg max_uncertainty2)" />
+  </node>
+</launch>

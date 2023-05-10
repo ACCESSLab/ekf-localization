@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- ekf localizer -->
+    <!-- Display current speed in RViz -->
+    <remap from="/ekf_pose" to="/current_pose" />
+    <remap from="/ekf_twist" to="/current_velocity" />
+    <include file="$(find ekf_localizer)/launch/ekf_localizer.launch">
+      <arg name="input_pose1_name" value="/ndt_pose" />
+      <arg name="input_pose2_name" value="/gnss_pose_drop" />
+      <arg name="input_twist_name" value="/vehicle/twist_transformed" />
+      <arg name="predict_frequency" value="50.0"/>
+      <arg name="pose_rate" value="20.0"/>
+      <arg name="twist_rate" value="30.0"/>
+      <arg name="method_type" value="2"/>
+      <arg name="pose_gate_dist" value="50.0"/>
+    </include>
+</launch>

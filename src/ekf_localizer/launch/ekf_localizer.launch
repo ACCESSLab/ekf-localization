@@ -1,0 +1,114 @@
+<launch>
+
+  <arg name="show_debug_info" default="false"/>
+  <arg name="enable_yaw_bias_estimation" default="true"/>
+  <arg name="predict_frequency" default="50.0"/>
+  <arg name="extend_state_step" value="25"/>
+  <arg name="method_type" default="0"/> <!-- LIDAR=0, GNSS=1, LIDAR_GNSS=2 -->
+  <arg name="use_synchronization" default="false"/>
+  
+  <!-- for Pose measurement -->
+  <arg name="use_pose_with_covariance" default="false"/>
+  <arg name="input_weight1_name" default="in_weight1"/>
+  <arg name="input_weight2_name" default="in_weight2"/>
+  <arg name="input_pose1_name" default="in_pose1"/>
+  <arg name="input_pose2_name" default="in_pose2"/>
+  <arg name="input_pose1_with_cov_name" default="in_pose1_with_covariance"/>
+  <arg name="input_pose2_with_cov_name" default="in_pose2_with_covariance"/>
+  <arg name="pose1_additional_delay" default="0.0"/>
+  <arg name="pose2_additional_delay" default="0.0"/>
+  <arg name="pose_measure_uncertainty_time" default="0.01"/>
+  
+  <arg name="pose1_rate" default="20.0"/>
+  <arg name="pose1_gate_dist" default="16.0"/>
+  <arg name="pose1_stddev_x" default="0.2"/>
+  <arg name="pose1_stddev_y" default="0.2"/>
+  <arg name="pose1_stddev_yaw" default="0.1"/>
+
+  <arg name="pose2_rate" default="20.0"/>
+  <arg name="pose2_gate_dist" default="16.0"/>      
+  <arg name="pose2_stddev_x" default="0.2"/>
+  <arg name="pose2_stddev_y" default="0.2"/>
+  <arg name="pose2_stddev_yaw" default="0.1"/>
+  
+  <!-- for twist measurement -->
+  <arg name="use_twist_with_covariance" default="false"/>
+  <arg name="input_twist_name" default="in_twist"/>
+  <arg name="input_twist_with_cov_name" default="in_twist_with_covariance"/>
+  <arg name="twist_additional_delay" default="0.0"/>
+  <arg name="twist_rate" default="30.0"/>
+  <arg name="twist_gate_dist" default="10000.0"/>
+  <arg name="twist_stddev_vx" default="0.2"/>
+  <arg name="twist_stddev_wz" default="0.03"/>
+
+  <!-- for process model -->
+  <arg name="proc_stddev_yaw_c" value="0.1"/>
+  <arg name="proc_stddev_yaw_bias_c" default="0.001"/>
+  <arg name="proc_stddev_vx_c" default="0.1"/>
+  <arg name="proc_stddev_wz_c" default="0.05"/>
+
+
+  <node pkg="ekf_localizer" type="ekf_localizer" name="ekf_localizer" output="screen">
+
+    <remap from="in_weight1" to="$(arg input_weight1_name)"/>
+    <remap unless="$(arg use_pose_with_covariance)" from="in_pose1" to="$(arg input_pose1_name)"/>
+    <remap unless="$(arg use_pose_with_covariance)" from="in_pose1_with_covariance" to="input_pose1_with_cov_UNUSED"/>
+    <remap if="$(arg use_pose_with_covariance)" from="in_pose1" to="input_pose1_UNUSED"/>
+    <remap if="$(arg use_pose_with_covariance)" from="in_pose1_with_covariance" to="$(arg input_pose1_with_cov_name)"/>
+
+    <remap from="in_weight2" to="$(arg input_weight2_name)"/>
+    <remap unless="$(arg use_pose_with_covariance)" from="in_pose2" to="$(arg input_pose2_name)"/>
+    <remap unless="$(arg use_pose_with_covariance)" from="in_pose2_with_covariance" to="input_pose2_with_cov_UNUSED"/>
+    <remap if="$(arg use_pose_with_covariance)" from="in_pose2" to="input_pose2_UNUSED"/>
+    <remap if="$(arg use_pose_with_covariance)" from="in_pose2_with_covariance" to="$(arg input_pose2_with_cov_name)"/>
+    
+    <remap unless="$(arg use_twist_with_covariance)" from="in_twist" to="$(arg input_twist_name)"/>
+    <remap unless="$(arg use_twist_with_covariance)" from="in_twist_with_covariance" to="input_twist_with_covariance_UNUSED"/>
+    <remap if="$(arg use_twist_with_covariance)" from="in_twist" to="input_twist_UNUSED"/>
+    <remap if="$(arg use_twist_with_covariance)" from="in_twist_with_covariance" to="$(arg input_twist_with_cov_name)"/>
+
+    <remap from="initialpose" to="/initialpose"/>
+
+    <param name="pose_frame_id" value="map"/>
+    <param name="output_frame_id" value="base_link"/>
+
+    <param name="show_debug_info" value="$(arg show_debug_info)"/>
+    <param name="enable_yaw_bias_estimation" value="$(arg enable_yaw_bias_estimation)"/>
+
+    <param name="predict_frequency" value="$(arg predict_frequency)"/>
+    <param name="extend_state_step" value="$(arg extend_state_step)"/>
+    <param name="method_type" value="$(arg method_type)"/>
+    <param name="use_synchronization" value="$(arg use_synchronization)"/>
+    
+    <param name="use_pose_with_covariance" value="$(arg use_pose_with_covariance)"/>
+    <param name="pose1_additional_delay" value="$(arg pose1_additional_delay)"/>
+    <param name="pose2_additional_delay" value="$(arg pose2_additional_delay)"/>
+    <param name="pose_measure_uncertainty_time" value="$(arg pose_measure_uncertainty_time)"/>
+    
+    <param name="pose1_rate" value="$(arg pose1_rate)"/>
+    <param name="pose1_gate_dist" value="$(arg pose1_gate_dist)"/>
+    <param name="pose1_stddev_x" value="$(arg pose1_stddev_x)"/>
+    <param name="pose1_stddev_y" value="$(arg pose1_stddev_y)"/>
+    <param name="pose1_stddev_yaw" value="$(arg pose1_stddev_yaw)"/>
+
+    <param name="pose2_rate" value="$(arg pose2_rate)"/>
+    <param name="pose2_gate_dist" value="$(arg pose2_gate_dist)"/>
+    <param name="pose2_stddev_x" value="$(arg pose2_stddev_x)"/>
+    <param name="pose2_stddev_y" value="$(arg pose2_stddev_y)"/>
+    <param name="pose2_stddev_yaw" value="$(arg pose2_stddev_yaw)"/>
+
+    <param name="use_twist_with_covariance" value="$(arg use_twist_with_covariance)"/>
+    <param name="twist_additional_delay" value="$(arg twist_additional_delay)"/>
+    <param name="twist_rate" value="$(arg twist_rate)"/>
+    <param name="twist_gate_dist" value="$(arg twist_gate_dist)"/>
+    <param name="twist_stddev_vx" value="$(arg twist_stddev_vx)"/>
+    <param name="twist_stddev_wz" value="$(arg twist_stddev_wz)"/>
+
+    <param name="proc_stddev_yaw_c" value="$(arg proc_stddev_yaw_c)"/>
+    <param name="proc_stddev_yaw_bias_c" value="$(arg proc_stddev_yaw_bias_c)"/>
+    <param name="proc_stddev_vx_c" value="$(arg proc_stddev_vx_c)"/>
+    <param name="proc_stddev_wz_c" value="$(arg proc_stddev_wz_c)"/>
+
+  </node>
+
+</launch>
